@@ -4,7 +4,7 @@ import pygame
 
 class Piece:
     PADDING = 20
-    OUTLINE = 2
+    OUTLINE = 5
 
     def __init__(self, row, col, color):
         self.row = row
@@ -17,6 +17,10 @@ class Piece:
         self.calc_pos()
 
     def calc_pos(self):
+        """
+        Calculate the position of the piece
+        :return:
+        """
         self.x = SQUARE_SIZE * self.col + SQUARE_SIZE // 2
         self.y = SQUARE_SIZE * self.row + SQUARE_SIZE // 2
 
@@ -24,6 +28,11 @@ class Piece:
         self.king = True
 
     def draw(self, win):
+        """
+        Draw the piece on the game window.
+        :param win:
+        :return:
+        """
         radius = SQUARE_SIZE // 2 - self.PADDING
         pygame.draw.circle(win, GREY, (self.x, self.y), radius + self.OUTLINE)
         pygame.draw.circle(win, self.color, (self.x, self.y), radius)
@@ -31,6 +40,12 @@ class Piece:
             win.blit(CROWN, (self.x - CROWN.get_width() // 2, self.y - CROWN.get_height() // 2))
 
     def move(self, row, col):
+        """
+        Move the piece to the desired row and col
+        :param row:
+        :param col:
+        :return:
+        """
         self.row = row
         self.col = col
         self.calc_pos()

@@ -14,12 +14,20 @@ class Game:
         pygame.display.update()
 
     def _init(self):
+        """
+        Initialize the initial values
+        :return:
+        """
         self.selected = None
         self.board = Board()
         self.turn = RED
         self.valid_moves = {}
 
     def reset(self):
+        """
+        Reset the initial values and restart the game
+        :return:
+        """
         self._init()
 
     def select(self, row, col):
@@ -49,6 +57,11 @@ class Game:
         return True
 
     def draw_valid_moves(self, moves):
+        """
+        Draw valid moves on the board with blue color
+        :param moves:
+        :return:
+        """
         for move in moves:
             row, col = move
             pygame.draw.circle(self.win, BLUE,

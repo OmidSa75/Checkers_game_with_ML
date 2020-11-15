@@ -51,10 +51,11 @@ def simulate_move(piece, move, board, game, skip):
         board.remove(skip)
     return board
 
+
 def draw_moves(game, board, piece):
     valid_moves = board.get_valid_moves(piece)
     board.draw(game.win)
-    pygame.draw.circle(game.win, (0,255,0 ), (piece.x, piece.y), 50, 5)
+    pygame.draw.circle(game.win, (0, 255, 0), (piece.x, piece.y), 50, 5)
     game.draw_valid_moves(valid_moves.keys())
     pygame.display.update()
     # pygame.time.delay(100)

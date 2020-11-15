@@ -11,6 +11,11 @@ class Board:
         self.create_board()
 
     def draw_squares(self, win):
+        """
+        Draw squares in the game window.
+        :param win:
+        :return:
+        """
         win.fill(BLACK)
 
         for row in range(ROWS):
@@ -18,9 +23,14 @@ class Board:
                 pygame.draw.rect(win, RED, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
     def evaluate(self):
+        """
+        Evaluation function for AI player!
+        :return:
+        """
         return self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_king * 0.5)
 
     def get_all_pieces(self, color):
+        """Return all pieces"""
         pieces = []
         for row in self.board:
             for piece in row:
@@ -29,6 +39,7 @@ class Board:
         return pieces
 
     def move(self, piece, row, col):
+        """Move the piece to the new row and column and check the king condition."""
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
         piece.move(row, col)
 
@@ -40,9 +51,16 @@ class Board:
                 self.red_king += 1
 
     def get_piece(self, row, col):
+        """
+        Return the piece in the specific row and column
+        :param row:
+        :param col:
+        :return:
+        """
         return self.board[row][col]
 
     def create_board(self):
+        """Create the board and placed the pieces on it. row by row"""
         for row in range(ROWS):
             self.board.append([])
             for col in range(COLS):
@@ -57,6 +75,7 @@ class Board:
                     self.board[row].append(0)
 
     def draw(self, win):
+        """Draw all pieces on the board Game!"""
         self.draw_squares(win)
         for row in range(ROWS):
             for col in range(COLS):
@@ -95,7 +114,9 @@ class Board:
 
         return moves
 
-    def _traverse_left(self, start, stop, step, color, left, skipped=[]):
+    def _traverse_left(self, start, stop, step, color, left, skipped=None):
+        if skipped is None:
+            skipped = []
         moves = {}
         last = []
         for r in range(start, stop, step):
