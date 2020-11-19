@@ -51,4 +51,4 @@ class Piece:
         self.calc_pos()
 
     def __repr__(self):
-        return str(self.color)
+        return f'<({self.color})({self.row}, {self.col})>'

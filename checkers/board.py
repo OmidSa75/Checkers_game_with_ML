@@ -8,6 +8,7 @@ class Board:
         self.board = []
         self.red_left = self.white_left = 12
         self.red_king = self.white_kings = 0
+        self.threaten_reds = self.threaten_whites = 0
         self.create_board()
 
     def draw_squares(self, win):
@@ -181,3 +182,22 @@ class Board:
 
             right += 1
         return moves
+
+    def calculate_threatens(self):
+        self.threaten_reds = 0
+        self.threaten_whites = 0
+        red_skips = []
+        white_skips = []
+
+        colors = [RED, WHITE]
+        for color in colors:
+            for piece in self.get_all_pieces(color):
+                valid_moves = self.get_valid_moves(piece)
+                for move, skip in valid_moves.items():
+                    if color == RED:
+                        white_skips += skip
+                    elif color == WHITE:
+                        red_skips += skip
+
+        self.threaten_whites = len(set(white_skips))
+        self.threaten_reds = len(set(red_skips))

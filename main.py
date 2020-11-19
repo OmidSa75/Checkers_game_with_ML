@@ -4,6 +4,7 @@ from checkers.constants import WIDTH, HEIGHT, SQUARE_SIZE, RED, WHITE
 from checkers.game import Game
 from minimax.algorithm import minimax_white, minimax_red
 
+
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Checkers')
 FPS = 60
@@ -62,6 +63,10 @@ def main(opt):
             if game.turn == RED:
                 value, new_board = minimax_red(game.get_board(), opt.minimax_depth, RED, game)
                 game.ai_move(new_board)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
 
             pygame.time.delay(1000)
             game.update()
