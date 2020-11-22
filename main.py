@@ -2,7 +2,7 @@ import pygame
 import argparse
 from checkers.constants import WIDTH, HEIGHT, SQUARE_SIZE, RED, WHITE
 from checkers.game import Game
-from minimax import minimax, criterion, optimizer
+from minimax import minimax, criterion
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Checkers')
@@ -103,11 +103,17 @@ def main(opt):
 
                 if game.turn == WHITE:
                     white_value, new_board = minimax(game.get_board(), opt.minimax_depth, True, game)
-                    game.ai_move(new_board)
+                    situation = game.ai_move(new_board)
+                    if situation: # if we can't move any further
+                        print('Can\'t move any further')
+                        break
                     white = True
                 elif game.turn == RED:
                     red_value, new_board = minimax(game.get_board(), opt.minimax_depth, False, game)
-                    game.ai_move(new_board)
+                    situation = game.ai_move(new_board)
+                    if situation:
+                        print('Can\'t move any further')
+                        break
                     red = True
 
                 if red and white:
@@ -136,17 +142,6 @@ def main(opt):
                 game.update()
                 iter += 1
 
-    # pygame.time.delay(1000)
-    # game.update()
-
-    # if game.turn == RED:
-    #     value, new_board = minimax_red(game.get_board(), 3, RED, game)
-    #     game.ai_move(new_board)
-
-    # value, new_board = minimax(game.get_board(), 3, game.turn, game)
-    # game.ai_move(new_board)
-    # pygame.time.delay(1000)
-    # game.update()
     pygame.quit()
 
 

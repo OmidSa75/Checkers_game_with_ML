@@ -13,13 +13,13 @@ class Board:
         self.threaten_reds = self.threaten_whites = 0
 
         '''weights for optimizing the evaluate function'''
-        self.bias = random.random()
-        self.weight_red = random.random()
-        self.weight_white = random.random()
-        self.weight_white_king = random.random()
-        self.weight_red_king = random.random()
-        self.weight_threaten_red = random.random()
-        self.weight_threaten_white = random.random()
+        self.bias = random.gauss(0, 1)
+        self.weight_red = random.gauss(0, 1)
+        self.weight_white = random.gauss(0, 1)
+        self.weight_white_king = random.gauss(0, 1)
+        self.weight_red_king = random.gauss(0, 1)
+        self.weight_threaten_red = random.gauss(0, 1)
+        self.weight_threaten_white = random.gauss(0, 1)
 
         self.weights = [self.bias, self.weight_red, self.weight_white, self.weight_red_king, self.weight_white_king,
                 self.weight_threaten_red, self.weight_threaten_white]

@@ -83,4 +83,8 @@ class Game:
 
     def ai_move(self, board):
         self.board = board
+        if board is None:
+            print('the board is None')
+            return True
         self.change_turn()
+        return False
