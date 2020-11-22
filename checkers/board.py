@@ -1,14 +1,32 @@
 import pygame
 from .constants import BLACK, ROWS, RED, SQUARE_SIZE, COLS, WHITE
 from .piece import Piece
+import random
+from minimax import optimizer
 
 
 class Board:
     def __init__(self):
         self.board = []
         self.red_left = self.white_left = 12
-        self.red_king = self.white_kings = 0
+        self.red_kings = self.white_kings = 0
         self.threaten_reds = self.threaten_whites = 0
+
+        '''weights for optimizing the evaluate function'''
+        self.bias = random.random()
+        self.weight_red = random.random()
+        self.weight_white = random.random()
+        self.weight_white_king = random.random()
+        self.weight_red_king = random.random()
+        self.weight_threaten_red = random.random()
+        self.weight_threaten_white = random.random()
+
+        self.weights = [self.bias, self.weight_red, self.weight_white, self.weight_red_king, self.weight_white_king,
+                self.weight_threaten_red, self.weight_threaten_white]
+
+        self.features = [1, self.red_left, self.white_left, self.red_kings, self.white_kings, self.threaten_reds,
+                self.threaten_whites]
+
         self.create_board()
 
     def draw_squares(self, win):
@@ -28,7 +46,11 @@ class Board:
         Evaluation function for AI player!
         :return:
         """
-        return self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_king * 0.5)
+        # return self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_kings * 0.5)
+        return self.bias + (self.weight_red * self.red_left) + (self.weight_white * self.white_left) + (
+                self.weight_red_king * self.red_kings) + (self.weight_white_king * self.white_kings) + (
+                       self.weight_threaten_red * self.threaten_reds) + (
+                       self.weight_threaten_white * self.threaten_whites)
 
     def get_all_pieces(self, color):
         """Return all pieces"""
@@ -49,7 +71,7 @@ class Board:
             if piece.color == WHITE:
                 self.white_kings += 1
             else:
-                self.red_king += 1
+                self.red_kings += 1
 
     def get_piece(self, row, col):
         """
@@ -201,3 +223,13 @@ class Board:
 
         self.threaten_whites = len(set(white_skips))
         self.threaten_reds = len(set(red_skips))
+
+    def optimize_weights(self, loss, lr):
+        for i in range(len(self.weights)):
+            self.weights[i] = self.weights[i] + lr * self.features[i] * loss
+
+    def apply_weights(self, weights):
+        for i in range(len(self.weights)):
+            self.weights[i] = weights[i]
+
+

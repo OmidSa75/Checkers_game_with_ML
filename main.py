@@ -2,8 +2,7 @@ import pygame
 import argparse
 from checkers.constants import WIDTH, HEIGHT, SQUARE_SIZE, RED, WHITE
 from checkers.game import Game
-from minimax.algorithm import minimax_white, minimax_red
-
+from minimax import minimax, criterion, optimizer
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Checkers')
@@ -18,14 +17,14 @@ def get_row_col_from_mouse(pos):
 
 
 def main(opt):
-    run = True
-    clock = pygame.time.Clock()
-    game = Game(WIN)
+    if opt.game_mode == 'person2person':
+        run = True
+        clock = pygame.time.Clock()
+        game = Game(WIN)
 
-    while run:
-        clock.tick(FPS)
+        while run:
+            clock.tick(FPS)
 
-        if opt.game_mode == 'person2person':
             if game.winner() is not None:
                 print(game.winner())
                 run = False
@@ -39,9 +38,15 @@ def main(opt):
                     game.select(row, col)
             game.update()
 
-        elif opt.game_mode == 'person2ai':
+    elif opt.game_mode == 'person2ai':
+        run = True
+        clock = pygame.time.Clock()
+        game = Game(WIN)
+
+        while run:
+            clock.tick(FPS)
             if game.turn == WHITE:
-                value, new_board = minimax_white(game.get_board(), opt.minimax_depth, WHITE, game)
+                value, new_board = minimax(game.get_board(), opt.minimax_depth, WHITE, game)
                 game.ai_move(new_board)
 
             for event in pygame.event.get():
@@ -53,40 +58,95 @@ def main(opt):
                     game.select(row, col)
             game.update()
 
-        elif opt.game_mode == 'ai2ai':
-            if game.turn == WHITE:
-                value, new_board = minimax_white(game.get_board(), opt.minimax_depth, WHITE, game)
-                game.ai_move(new_board)
+    elif opt.game_mode == 'ai2ai':
+        run = True
+        clock = pygame.time.Clock()
+        game = Game(WIN)
 
-            pygame.time.delay(1000)
-            game.update()
-            if game.turn == RED:
-                value, new_board = minimax_red(game.get_board(), opt.minimax_depth, RED, game)
+        while run:
+            clock.tick(FPS)
+
+            if game.winner() is not None:
+                print("The winner is: ", game.winner())
+                run = False
+
+            if game.turn == WHITE:
+                value, new_board = minimax(game.get_board(), opt.minimax_depth, WHITE, game)
+                game.ai_move(new_board)
+            elif game.turn == RED:
+                value, new_board = minimax(game.get_board(), opt.minimax_depth, False, game)
                 game.ai_move(new_board)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
 
-            pygame.time.delay(1000)
+            # pygame.time.delay(1000)
             game.update()
 
-        elif opt.game_mode == 'person2ai_ml':
-            pass
-        elif opt.game_mode == 'ai2ai_ml':
-            pass
+    elif opt.game_mode == 'person2ai_ml':
+        pass
+    elif opt.game_mode == 'ai2ai_ml':
+        weights = None
 
-        # pygame.time.delay(1000)
-        # game.update()
+        for epoch in range(opt.epochs):
+            run = True
+            clock = pygame.time.Clock()
+            game = Game(WIN)
+            red = white = False
+            if weights is not None:
+                game.board.apply_weights(weights)
 
-        # if game.turn == RED:
-        #     value, new_board = minimax_red(game.get_board(), 3, RED, game)
-        #     game.ai_move(new_board)
+            iter = 0
+            while iter < 100 and run:
+                clock.tick(FPS)
 
-        # value, new_board = minimax(game.get_board(), 3, game.turn, game)
-        # game.ai_move(new_board)
-        # pygame.time.delay(1000)
-        # game.update()
+                if game.turn == WHITE:
+                    white_value, new_board = minimax(game.get_board(), opt.minimax_depth, True, game)
+                    game.ai_move(new_board)
+                    white = True
+                elif game.turn == RED:
+                    red_value, new_board = minimax(game.get_board(), opt.minimax_depth, False, game)
+                    game.ai_move(new_board)
+                    red = True
+
+                if red and white:
+                    loss = criterion(white_value, red_value)
+                    game.board.optimize_weights(loss, 0.1)
+                    red = white = False
+                    print(loss)
+                    if game.winner() is not None:
+                        if game.winner() == WHITE:
+                            loss = criterion(24, white_value)
+                            game.board.optimize_weights(loss, 0.1)
+                            print('White is the winner and the loss is : ', loss)
+                            weights = game.board.weights
+                            break
+
+                        elif game.winner() == RED:
+                            loss = criterion(-24, red_value)
+                            game.board.optimize_weights(loss, 0.1)
+                            print('Red is the winner and the loss is : ', loss)
+                            weights = game.board.weights
+                            break
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        run = False
+
+                game.update()
+                iter += 1
+
+    # pygame.time.delay(1000)
+    # game.update()
+
+    # if game.turn == RED:
+    #     value, new_board = minimax_red(game.get_board(), 3, RED, game)
+    #     game.ai_move(new_board)
+
+    # value, new_board = minimax(game.get_board(), 3, game.turn, game)
+    # game.ai_move(new_board)
+    # pygame.time.delay(1000)
+    # game.update()
     pygame.quit()
 
 
@@ -101,8 +161,12 @@ if __name__ == '__main__':
                              ' its evaluation function for better ai moves\n'
                              'ai2ai_ml: play 2 ai players together to train their evaluation functions for '
                              'better ai moves')
+
     parser.add_argument('--minimax_depth', type=int, default=3,
                         help='minimax tree depth')
+
+    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--lr', type=float, default=0.1)
 
     opt = parser.parse_args()
     main(opt)
