@@ -11,9 +11,14 @@ pip install pygame
 ```
 
 ### Run The Game
+Clone this repo:
+```shell script
+git clone https://github.com/OmidSa75/Checkers_game_with_ML.git
+```
+
 To run the game use the following command:
 ```shell script
-python main.py --game_mode [GAME_MODE] --minimax_depth [DEPTH]
+python main.py --game_mode [GAME_MODE] --minimax_depth [DEPTH] --epoch [EPOCH]  --lr [LEARNING RATE]
 ```
 ##### Game Modes
     * [person2pseron] : play with another person
