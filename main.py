@@ -90,12 +90,15 @@ def main(opt):
         weights = None
 
         for epoch in range(opt.epochs):
+            print("Epoch : {}".format(epoch))
             run = True
             clock = pygame.time.Clock()
             game = Game(WIN)
             red = white = False
             if weights is not None:
-                game.board.apply_weights(weights)
+                game.board.apply_weights(weights.copy())
+
+            print(game.board.return_weights())
 
             iter = 0
             while iter < 100 and run:
@@ -118,22 +121,26 @@ def main(opt):
 
                 if red and white:
                     loss = criterion(white_value, red_value)
-                    game.board.optimize_weights(loss, 0.1)
+                    game.board.optimize_weights(loss, 0.01)
                     red = white = False
-                    print(loss)
+                    try:
+                        weights = game.board.return_weights()
+                    except AttributeError:
+                        pass
+                    # print(loss)
                     if game.winner() is not None:
                         if game.winner() == WHITE:
                             loss = criterion(24, white_value)
-                            game.board.optimize_weights(loss, 0.1)
+                            game.board.optimize_weights(loss, 0.01)
                             print('White is the winner and the loss is : ', loss)
-                            weights = game.board.weights
+                            # weights = game.board.return_weights()
                             break
 
                         elif game.winner() == RED:
                             loss = criterion(-24, red_value)
-                            game.board.optimize_weights(loss, 0.1)
+                            game.board.optimize_weights(loss, 0.01)
                             print('Red is the winner and the loss is : ', loss)
-                            weights = game.board.weights
+                            # weights = game.board.return_weights()
                             break
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -141,6 +148,12 @@ def main(opt):
 
                 game.update()
                 iter += 1
+            try:
+                weights = game.board.return_weights()
+            except AttributeError:
+                pass
+            print(loss)
+        # print(game.board.weights)
 
     pygame.quit()
 
@@ -160,7 +173,7 @@ if __name__ == '__main__':
     parser.add_argument('--minimax_depth', type=int, default=3,
                         help='minimax tree depth')
 
-    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--lr', type=float, default=0.1)
 
     opt = parser.parse_args()

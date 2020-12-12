@@ -21,12 +21,6 @@ class Board:
         self.weight_threaten_red = random.gauss(0, 1)
         self.weight_threaten_white = random.gauss(0, 1)
 
-        self.weights = [self.bias, self.weight_red, self.weight_white, self.weight_red_king, self.weight_white_king,
-                self.weight_threaten_red, self.weight_threaten_white]
-
-        self.features = [1, self.red_left, self.white_left, self.red_kings, self.white_kings, self.threaten_reds,
-                self.threaten_whites]
-
         self.create_board()
 
     def draw_squares(self, win):
@@ -225,11 +219,24 @@ class Board:
         self.threaten_reds = len(set(red_skips))
 
     def optimize_weights(self, loss, lr):
-        for i in range(len(self.weights)):
-            self.weights[i] = self.weights[i] + lr * self.features[i] * loss
+        self.bias = self.bias + lr * 1 * loss
+        self.weight_red = self.weight_red + lr * self.red_left * loss
+        self.weight_white = self.weight_white + lr * self.white_left * loss
+        self.weight_red_king = self.weight_red_king + lr * self.red_kings * loss
+        self.weight_white_king = self.weight_white_king + lr * self.white_kings * loss
+        self.weight_threaten_red = self.weight_threaten_red + lr * self.threaten_reds * loss
+        self.weight_threaten_white = self.weight_threaten_white + lr * self.threaten_whites * loss
 
     def apply_weights(self, weights):
-        for i in range(len(self.weights)):
-            self.weights[i] = weights[i]
 
+        self.bias = weights[0]
+        self.weight_red = weights[1]
+        self.weight_white = weights[2]
+        self.weight_red_king = weights[3]
+        self.weight_white_king = weights[4]
+        self.weight_threaten_red = weights[5]
+        self.weight_threaten_white = weights[6]
 
+    def return_weights(self):
+        return [self.bias, self.weight_red, self.weight_white, self.weight_red_king, self.weight_white_king,
+                        self.weight_threaten_red, self.weight_threaten_white]
